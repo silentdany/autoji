@@ -47,5 +47,7 @@
       },
       "description": "Open Autoji popup"
     }
-  }
+  },
+
+  "is_production": false
 }

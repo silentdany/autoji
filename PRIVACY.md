@@ -1,6 +1,6 @@
 # Autoji Privacy Policy
 
-*Last updated: March 20, 2024*
+*Last updated: March 19, 2025*
 
 ## The Short Version (TL;DR)
 

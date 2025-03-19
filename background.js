@@ -21,7 +21,12 @@ async function fetchEmoji(text, apiKey, tabId) {
   chrome.storage.local.set({ emojiStatus: "fetching", emojiResult: null });
 
   try {
-    const response = await fetch("http://localhost:3000/api/emoji", {
+    // Get API URL based on environment
+    const API_URL = chrome.runtime.getManifest().is_production === true 
+      ? "https://autoji.vercel.app/api/emoji"
+      : "http://localhost:3000/api/emoji";
+
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
