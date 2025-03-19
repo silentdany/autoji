@@ -5,14 +5,11 @@ const archiver = require('archiver');
 console.log('Packaging the extension... though it hardly matters in this vast, uncaring universe.');
 
 // Create dist directory if it doesn't exist
-if (!fs.existsSync('./dist')) {
-  fs.mkdirSync('./dist');
-} else {
-  // Clean up any existing files
-  fs.readdirSync('./dist').forEach(file => {
-    fs.unlinkSync(path.join('./dist', file));
-  });
+if (fs.existsSync('./dist')) {
+  // Clean up dist directory recursively
+  fs.rmSync('./dist', { recursive: true, force: true });
 }
+fs.mkdirSync('./dist');
 
 // Read and update the manifest
 const manifest = JSON.parse(fs.readFileSync('./manifest.json', 'utf8'));
