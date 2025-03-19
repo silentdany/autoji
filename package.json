@@ -1,0 +1,23 @@
+{
+  "name": "autoji",
+  "version": "1.0.0",
+  "main": "background.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "test": "jest",
+    "package": "./package.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "AI-powered emoji suggestions for Chrome",
+  "dependencies": {
+    "ai": "^4.1.62",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "openai": "^4.87.4",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5"
+  }
+}
