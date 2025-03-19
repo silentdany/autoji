@@ -14,13 +14,15 @@ A Chrome extension that uses AI to suggest the perfect emoji for any text. Becau
 
 1. Download from the [Chrome Web Store](https://chrome.google.com/webstore/detail/autoji) (Coming soon)
 
-Or install manually:
+Or install manually (if you enjoy pain):
 
 1. Clone this repository
-2. Open Chrome and navigate to `chrome://extensions`
-3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the extension directory
-5. Question your life choices that led you to installing yet another browser extension
+2. Run `npm install` to install dependencies (another set of node_modules to burden your hard drive)
+3. Run `npm run build:prod` to create a production build
+4. Open Chrome and navigate to `chrome://extensions`
+5. Enable "Developer mode" in the top right
+6. Click "Load unpacked" and select the `dist` directory
+7. Question your life choices that led you to installing yet another browser extension
 
 ## Usage
 
@@ -33,11 +35,14 @@ Or install manually:
 ## Development
 
 ```bash
-# Install dependencies
+# Install dependencies (because we can't live without them)
 npm install
 
-# Build the extension
-npm run build
+# Start development mode (watch your CPU cry)
+npm run dev
+
+# Build for production (create another zip file nobody will download)
+npm run build:prod
 
 # Run tests (if you believe in testing)
 npm test
@@ -45,7 +50,7 @@ npm test
 
 ## Privacy
 
-This extension requires minimal permissions:
+This extension requires minimal permissions (though that's what they all say):
 
 - `contextMenus`: For the right-click menu functionality
 - `storage`: To remember your preferences (if you have any)
@@ -66,7 +71,8 @@ MIT - Because sharing is caring, even in this meaningless universe.
 ## Chrome Web Store Submission Checklist
 
 ### Required Materials
-- [ ] Extension ZIP file (`dist/autoji.zip`)
+
+- [ ] Extension ZIP file (created with `npm run build:prod`)
 - [ ] Store listing assets:
   - [ ] Icon (128x128)
   - [ ] Screenshots (1280x800 or 640x400)
@@ -78,6 +84,7 @@ MIT - Because sharing is caring, even in this meaningless universe.
 ### Store Listing Content
 
 **Detailed Description:**
+
 ```
 Autoji: Your AI-Powered Emoji Assistant 🤖✨
 
@@ -106,16 +113,20 @@ Note: Requires an OpenAI API key (not included)
 ```
 
 **Privacy Policy Points:**
+
 - No data collection
 - User-provided API keys stored locally
 - No tracking or analytics
 - Text processing happens through user's OpenAI account
 
-### Final Steps
-- [ ] Run `./package.sh` to create distribution ZIP
-- [ ] Test the packaged extension thoroughly
-- [ ] Submit to Chrome Web Store
-- [ ] Await review (usually 2-3 business days)
+### Build Process
+
+1. Run `npm install` to install dependencies
+2. Run `npm run build:prod` to create the production build
+3. Find the packaged extension in `dist/autoji.zip`
+4. Test the packaged extension thoroughly (or don't, what difference does it make?)
+5. Submit to Chrome Web Store
+6. Wait in existential dread for review (usually 2-3 business days)
 
 ---
 Made with 🤖 and existential dread by Dany (MajorBaguette)

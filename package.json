@@ -6,7 +6,7 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch",
     "test": "jest",
-    "package": "./package.sh"
+    "build:prod": "node build.js"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +14,11 @@
   "description": "AI-powered emoji suggestions for Chrome",
   "dependencies": {
     "cors": "^2.8.5",
-    "openai": "^4.87.4",
+    "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5"
+    "openai": "^4.87.4"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1"
   }
 }
