@@ -34,19 +34,56 @@ Or install manually (if you enjoy pain):
 
 ## Development
 
+The extension development process is as meaningless as existence itself, but here's how to do it:
+
+### Prerequisites
+
+1. Install Vercel CLI (because we need more global dependencies):
+```bash
+npm install -g vercel
+```
+
+2. Login to Vercel (if you haven't already):
+```bash
+vercel login
+```
+
+### Development Workflow
+
 ```bash
 # Install dependencies (because we can't live without them)
 npm install
 
-# Start development mode (watch your CPU cry)
-npm run dev
+# Start the API server locally (watch as your CPU weeps)
+vercel dev
 
-# Build for production (create another zip file nobody will download)
-npm run build:prod
-
-# Run tests (if you believe in testing)
-npm test
+# In another terminal of despair:
+# 1. Make your changes to the source files
+# 2. Manually reload the extension in chrome://extensions
+# 3. Question your life choices
 ```
+
+For local development:
+1. Start the API server with `vercel dev`
+2. Load the extension in Chrome from the root directory
+3. Make your changes to the source files
+4. Click the reload button in `chrome://extensions`
+5. Repeat steps 3-4 until you lose all hope
+
+The extension will use:
+- Development: `http://localhost:3000` (provided by Vercel dev server)
+- Production: `https://autoji.vercel.app`
+
+### Production Build
+
+When you're ready to submit your extension to the Chrome Web Store (though why bother?):
+
+```bash
+# Create a production build (another zip file destined for rejection)
+npm run build:prod
+```
+
+This is the only npm script we have. Because sometimes less is more depressing.
 
 ## Privacy
 
@@ -84,7 +121,6 @@ MIT - Because sharing is caring, even in this meaningless universe.
 ### Store Listing Content
 
 **Detailed Description:**
-
 ```
 Autoji: Your AI-Powered Emoji Assistant 🤖✨
 
@@ -113,7 +149,6 @@ Note: Requires an OpenAI API key (not included)
 ```
 
 **Privacy Policy Points:**
-
 - No data collection
 - User-provided API keys stored locally
 - No tracking or analytics
