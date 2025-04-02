@@ -1,21 +1,7 @@
 {
-  "name": "autoji",
+  "name": "amazon-data-extractor",
   "version": "1.0.0",
-  "main": "background.js",
-  "scripts": {
-    "build:prod": "node build.js"
-  },
-  "keywords": [],
+  "description": "Chrome extension to extract product data from Amazon pages",
   "author": "",
-  "license": "ISC",
-  "description": "AI-powered emoji suggestions for Chrome",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
-    "openai": "^4.87.4"
-  },
-  "devDependencies": {
-    "archiver": "^7.0.1"
-  }
-}
+  "license": "MIT"
+} 
