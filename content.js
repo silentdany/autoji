@@ -23,6 +23,74 @@ const scrapeAmazonProduct = () => {
       url: `https://${window.location.hostname}/dp/${getASIN()}/`,
       isPrime: !!document.querySelector('.a-icon-prime'),
       timestamp: new Date().toISOString(),
+      
+      // Extract reviews data
+      reviews: {
+        // Amazon review summary only
+        amazon: {
+          rating: (() => {
+            const ratingText = document.querySelector('#acrPopover .a-icon-alt')?.textContent || '';
+            const ratingMatch = ratingText.match(/([0-9.]+)/);
+            return ratingMatch ? parseFloat(ratingMatch[1]) : null;
+          })(),
+          totalReviews: (() => {
+            const reviewCountText = document.querySelector('#acrCustomerReviewText')?.textContent || '';
+            const reviewCountMatch = reviewCountText.match(/([0-9,]+)/);
+            if (reviewCountMatch) {
+              return parseInt(reviewCountMatch[1].replace(/,/g, ''));
+            }
+            return null;
+          })()
+          // No detailed reviews as requested
+        },
+        
+        // Goodreads ratings only (as floats)
+        goodreads: (() => {
+          // Check if Goodreads elements exist
+          const grRatingElements = document.querySelectorAll('.gr-review-rating-text');
+          const grCountElement = document.querySelector('.gr-review-count-text span');
+          
+          // Return null if no Goodreads data found
+          if (grRatingElements.length === 0 && !grCountElement) return null;
+          
+          // Extract rating
+          let rating = null;
+          if (grRatingElements.length > 0) {
+            const ratingValues = Array.from(grRatingElements)
+              .map(element => {
+                const ratingSpan = element.querySelector('span');
+                if (!ratingSpan) return null;
+                
+                const ratingText = ratingSpan.textContent.trim();
+                const ratingMatch = ratingText.match(/([0-9.]+)/);
+                return ratingMatch ? parseFloat(ratingMatch[1]) : null;
+              })
+              .filter(r => r !== null);
+              
+            // Calculate average if we have any valid ratings
+            if (ratingValues.length > 0) {
+              rating = parseFloat(
+                (ratingValues.reduce((sum, val) => sum + val, 0) / ratingValues.length).toFixed(1)
+              );
+            }
+          }
+          
+          // Extract total reviews count
+          let totalReviews = null;
+          if (grCountElement) {
+            const countText = grCountElement.textContent.trim();
+            const countMatch = countText.match(/([0-9,]+)/);
+            if (countMatch) {
+              totalReviews = parseInt(countMatch[1].replace(/,/g, ''));
+            }
+          }
+          
+          return {
+            rating,
+            totalReviews
+          };
+        })()
+      }
     };
     
     // Book-specific data
