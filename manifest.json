@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Autoji Amazon Scraper",
+  "name": "FuckAmazonAPI",
   "version": "1.0.0",
   "description": "Extract product data from Amazon pages",
   "action": {
@@ -27,8 +27,9 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://*.amazon.com/*"],
-      "js": ["content.js"]
+      "matches": ["https://*.amazon.com/*", "https://*.amazon.co.uk/*", "https://*.amazon.fr/*", "https://*.amazon.de/*", "https://*.amazon.ca/*", "https://*.amazon.es/*", "https://*.amazon.it/*", "https://*.amazon.co.jp/*", "https://*.amazon.com.au/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
   ],
   "background": {

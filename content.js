@@ -115,6 +115,89 @@ function getASIN() {
   return '';
 }
 
+// Add floating action button to the page
+function injectFAB() {
+  // Check if we're on an Amazon product page
+  if (!(window.location.href.includes('/dp/') || window.location.href.includes('/gp/product/'))) {
+    return; // Don't inject on non-product pages
+  }
+
+  // Create the button
+  const fab = document.createElement('button');
+  fab.className = 'autoji-fab';
+  fab.textContent = '🔥';
+  fab.title = 'Scrape this product';
+  
+  // Create a toast notification element
+  const toast = document.createElement('div');
+  toast.className = 'autoji-toast';
+  toast.style.display = 'none';
+  
+  // Add them to the body
+  document.body.appendChild(fab);
+  document.body.appendChild(toast);
+  
+  // Handle click event
+  fab.addEventListener('click', async () => {
+    fab.classList.add('pulse');
+    showToast('Scraping product...', 'info');
+    
+    try {
+      // Scrape the product data
+      const productData = scrapeAmazonProduct();
+      
+      if (productData.error) {
+        showToast(`Error: ${productData.error}`, 'error');
+      } else {
+        // Save to storage through background script or API
+        chrome.storage.local.get(['scrapedProducts'], (result) => {
+          let scrapedProducts = result.scrapedProducts || [];
+          
+          // Check if product already exists
+          const existingIndex = scrapedProducts.findIndex(p => p.asin === productData.asin);
+          if (existingIndex !== -1) {
+            scrapedProducts[existingIndex] = productData;
+            showToast('Product updated in your list', 'success');
+          } else {
+            scrapedProducts.push(productData);
+            showToast('Product added to your list', 'success');
+          }
+          
+          // Save updated list back to storage
+          chrome.storage.local.set({ scrapedProducts });
+        });
+      }
+    } catch (error) {
+      showToast(`Scraping failed: ${error.message}`, 'error');
+    }
+    
+    // Remove pulse animation after it completes
+    setTimeout(() => {
+      fab.classList.remove('pulse');
+    }, 500);
+  });
+  
+  // Show a toast notification
+  function showToast(message, type = 'info') {
+    toast.textContent = message;
+    toast.className = `autoji-toast ${type}`;
+    toast.style.display = 'block';
+    
+    // Trigger animation
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+    
+    // Hide toast after a few seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 300);
+    }, 3000);
+  }
+}
+
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'scrapeProduct') {
@@ -124,4 +207,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true; // Keep the message channel open for asynchronous response
 });
 
+// Run when the content script is injected
+injectFAB();
 console.log('Amazon scraper content script loaded'); 

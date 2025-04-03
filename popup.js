@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   const scrapeButton = document.getElementById('scrapeButton');
   const downloadButton = document.getElementById('downloadButton');
+  const clearAllButton = document.getElementById('clearAllButton');
   const statusDiv = document.getElementById('status');
+  const statusIcon = document.querySelector('.status-icon');
+  const statusText = document.querySelector('.status-text');
   const productCountSpan = document.getElementById('productCount');
   const productListDiv = document.getElementById('productList');
 
@@ -16,13 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   scrapeButton.addEventListener('click', () => {
-    setStatus('Scraping...', 'info');
+    setStatus('Scraping product...', 'info', '⏳');
     scrapeButton.disabled = true;
 
     // Get the current active tab
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]?.id) {
-        setStatus('Could not find active tab.', 'error');
+        setStatus('Could not find active tab.', 'error', '❌');
         scrapeButton.disabled = false;
         return;
       }
@@ -31,28 +34,29 @@ document.addEventListener('DOMContentLoaded', () => {
         scrapeButton.disabled = false;
         if (chrome.runtime.lastError) {
           // Handle errors like content script not injected
-          setStatus(`Error: ${chrome.runtime.lastError.message}`, 'error');
+          setStatus(`Error: ${chrome.runtime.lastError.message}`, 'error', '❌');
           console.error(chrome.runtime.lastError);
         } else if (response && response.error) {
-          setStatus(`Scraping error: ${response.error}`, 'error');
+          setStatus(`Scraping error: ${response.error}`, 'error', '❌');
           console.error('Scraping error:', response.error);
         } else if (response) {
           // Check if product already exists (by ASIN)
           const existingIndex = scrapedProducts.findIndex(p => p.asin === response.asin);
           if (existingIndex === -1) {
             scrapedProducts.push(response);
+            setStatus('Product added successfully!', 'success', '✓');
           } else {
-            // Optionally update existing product data
+            // Update existing product data
             scrapedProducts[existingIndex] = response; 
+            setStatus('Product updated successfully!', 'success', '✓');
           }
           
           // Save to storage
           chrome.storage.local.set({ scrapedProducts }, () => {
-            setStatus('Product scraped successfully!', 'success');
             updateUI();
           });
         } else {
-           setStatus('No response from content script.', 'error');
+           setStatus('No response from content script.', 'error', '❌');
         }
       });
     });
@@ -60,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   downloadButton.addEventListener('click', () => {
     if (scrapedProducts.length === 0) {
-      setStatus('No data to download.', 'error');
+      setStatus('No data to download.', 'error', '❌');
       return;
     }
 
@@ -77,44 +81,110 @@ document.addEventListener('DOMContentLoaded', () => {
       saveAs: true // Prompt user for save location
     }, (downloadId) => {
       if (chrome.runtime.lastError) {
-        setStatus(`Download error: ${chrome.runtime.lastError.message}`, 'error');
+        setStatus(`Download error: ${chrome.runtime.lastError.message}`, 'error', '❌');
         console.error('Download error:', chrome.runtime.lastError);
       } else {
-        setStatus('Download initiated.', 'success');
-        // Optional: Clear data after download?
-        // scrapedProducts = [];
-        // chrome.storage.local.set({ scrapedProducts }, updateUI);
+        setStatus('Download initiated.', 'success', '✓');
       }
       // Revoke the object URL to free up resources
       URL.revokeObjectURL(url);
     });
   });
+  
+  clearAllButton.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all scraped products?')) {
+      scrapedProducts = [];
+      chrome.storage.local.set({ scrapedProducts }, () => {
+        setStatus('All products cleared.', 'info', 'ℹ️');
+        updateUI();
+      });
+    }
+  });
+
+  // Handle individual product deletion
+  productListDiv.addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+      const asin = e.target.dataset.asin;
+      if (asin) {
+        scrapedProducts = scrapedProducts.filter(product => product.asin !== asin);
+        chrome.storage.local.set({ scrapedProducts }, () => {
+          setStatus('Product removed.', 'info', 'ℹ️');
+          updateUI();
+        });
+      }
+    }
+  });
 
   function updateUI() {
+    // Update product count
     productCountSpan.textContent = scrapedProducts.length;
+    
+    // Update button states
     downloadButton.disabled = scrapedProducts.length === 0;
-    productListDiv.innerHTML = ''; // Clear previous list
+    clearAllButton.disabled = scrapedProducts.length === 0;
 
+    // Update product list
     if (scrapedProducts.length > 0) {
-      productListDiv.style.display = 'block';
+      productListDiv.innerHTML = ''; // Clear previous list
+      
       scrapedProducts.forEach(product => {
         const item = document.createElement('div');
         item.className = 'product-item';
-        item.textContent = `${product.title || 'No Title'} (ASIN: ${product.asin || 'N/A'})`;
+        
+        const icon = document.createElement('div');
+        icon.className = 'product-icon';
+        icon.textContent = '📚'; // Book icon by default
+        
+        const details = document.createElement('div');
+        details.className = 'product-details';
+        
+        const title = document.createElement('div');
+        title.className = 'product-title';
+        title.textContent = product.title || 'No Title';
+        title.title = product.title || 'No Title'; // tooltip on hover
+        
+        const asin = document.createElement('div');
+        asin.className = 'product-asin';
+        asin.textContent = `ASIN: ${product.asin || 'N/A'}`;
+        
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;'; // × symbol
+        deleteBtn.title = 'Remove this product';
+        deleteBtn.dataset.asin = product.asin;
+        
+        details.appendChild(title);
+        details.appendChild(asin);
+        
+        item.appendChild(icon);
+        item.appendChild(details);
+        item.appendChild(deleteBtn);
+        
         productListDiv.appendChild(item);
       });
     } else {
-      productListDiv.style.display = 'none';
+      // Show empty state
+      productListDiv.innerHTML = `
+        <div class="empty-state">
+          No products scraped yet.<br>
+          Visit an Amazon product page and click "Scrape Page".
+        </div>
+      `;
     }
   }
 
-  function setStatus(message, type) {
-    statusDiv.textContent = message;
+  function setStatus(message, type, iconText) {
+    statusText.textContent = message;
+    statusIcon.textContent = iconText || '';
     statusDiv.className = `status ${type}`;
-    statusDiv.style.display = 'block';
-    // Hide status after a few seconds
-    setTimeout(() => {
-      statusDiv.style.display = 'none';
-    }, 5000);
+    statusDiv.style.display = 'flex';
+    
+    // Hide status after a few seconds unless it's an error
+    if (type !== 'error') {
+      setTimeout(() => {
+        statusDiv.style.display = 'none';
+      }, 5000);
+    }
   }
 }); 

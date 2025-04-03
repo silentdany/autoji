@@ -4,103 +4,278 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Autoji Amazon Scraper</title>
+  <title>FuckAmazonAPI</title>
   <style>
+    :root {
+      --primary: #ff9900;
+      --primary-light: #ffac33;
+      --primary-dark: #e88b00;
+      --text: #232f3e;
+      --light-text: #666;
+      --lighter-text: #888;
+      --border: #eaeded;
+      --success: #137333;
+      --success-bg: #e6f4ea;
+      --error: #c5221f;
+      --error-bg: #fce8e6;
+      --info-bg: #e8f0fe;
+      --info: #1a73e8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      width: 320px;
+      width: 360px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .header {
       padding: 16px;
-      color: #333;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     h1 {
       font-size: 18px;
-      margin-top: 0;
-      margin-bottom: 16px;
       font-weight: 500;
+      color: var(--text);
+    }
+
+    .counter-badge {
+      background-color: var(--primary);
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
     }
 
     .container {
+      padding: 16px;
+    }
+
+    .button-group {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
     button {
-      background-color: #ff9900;
-      color: #000;
-      border: none;
-      padding: 8px 12px;
+      padding: 10px 16px;
       border-radius: 4px;
-      cursor: pointer;
       font-weight: 500;
-      transition: background-color 0.3s;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    button:hover {
-      background-color: #ffac33;
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
     }
 
-    button:disabled {
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-primary:disabled {
       background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #f7f7f7;
+    }
+
+    .btn-secondary:disabled {
+      color: #ccc;
       cursor: not-allowed;
     }
 
     .status {
       font-size: 14px;
-      margin-top: 12px;
-      padding: 8px;
+      margin: 12px 0;
+      padding: 10px 12px;
       border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .status.success {
-      background-color: #e6f4ea;
-      color: #137333;
+      background-color: var(--success-bg);
+      color: var(--success);
     }
 
     .status.error {
-      background-color: #fce8e6;
-      color: #c5221f;
+      background-color: var(--error-bg);
+      color: var(--error);
     }
 
-    .counter {
-      font-size: 14px;
-      margin-top: 8px;
+    .status.info {
+      background-color: var(--info-bg);
+      color: var(--info);
+    }
+
+    .status-icon {
+      font-size: 16px;
     }
 
     .product-list {
-      max-height: 150px;
+      margin-top: 16px;
+      max-height: 280px;
       overflow-y: auto;
-      margin-top: 12px;
-      border: 1px solid #eee;
+      border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 8px;
-      font-size: 12px;
+    }
+
+    .product-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .product-list-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .empty-state {
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--lighter-text);
+      font-size: 14px;
     }
 
     .product-item {
-      padding: 4px 0;
-      border-bottom: 1px solid #eee;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      position: relative;
     }
 
     .product-item:last-child {
       border-bottom: none;
     }
+
+    .product-icon {
+      color: var(--primary);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .product-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-asin {
+      font-size: 12px;
+      color: var(--light-text);
+    }
+
+    .delete-btn {
+      color: var(--light-text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 14px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      position: absolute;
+      right: 8px;
+      top: 8px;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+    }
+
+    .footer {
+      font-size: 12px;
+      color: var(--lighter-text);
+      text-align: center;
+      padding: 8px 16px 16px;
+      border-top: 1px solid var(--border);
+    }
   </style>
 </head>
 
 <body>
-  <h1>Autoji Amazon Scraper</h1>
+  <div class="header">
+    <h1>FuckAmazonAPI</h1>
+    <span class="counter-badge" id="productCount">0</span>
+  </div>
 
   <div class="container">
-    <button id="scrapeButton">Scrape This Page</button>
-    <button id="downloadButton" disabled>Download Data</button>
+    <div class="button-group">
+      <button id="scrapeButton" class="btn-primary">
+        <span class="button-icon">+</span>
+        Scrape Page
+      </button>
+      <button id="downloadButton" class="btn-secondary" disabled>
+        <span class="button-icon">↓</span>
+        Download
+      </button>
+    </div>
 
-    <div id="status" class="status" style="display: none;"></div>
+    <div id="status" class="status" style="display: none;">
+      <span class="status-icon"></span>
+      <span class="status-text"></span>
+    </div>
 
-    <div class="counter">Products scraped: <span id="productCount">0</span></div>
+    <div class="product-list-header">
+      <span class="product-list-title">Scraped Products</span>
+      <button id="clearAllButton" class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" disabled>Clear
+        All</button>
+    </div>
 
-    <div id="productList" class="product-list" style="display: none;"></div>
+    <div class="product-list">
+      <div id="productList">
+        <div class="empty-state">
+          No products scraped yet.<br>
+          Visit an Amazon product page and click "Scrape Page".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    FuckAmazonAPI v1.0.0
   </div>
 
   <script src="popup.js"></script>
