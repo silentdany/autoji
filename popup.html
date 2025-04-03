@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autoji Amazon Scraper</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      width: 320px;
+      padding: 16px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    button {
+      background-color: #ff9900;
+      color: #000;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ffac33;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .status {
+      font-size: 14px;
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .status.success {
+      background-color: #e6f4ea;
+      color: #137333;
+    }
+
+    .status.error {
+      background-color: #fce8e6;
+      color: #c5221f;
+    }
+
+    .counter {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .product-list {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 12px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .product-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Autoji Amazon Scraper</h1>
+
+  <div class="container">
+    <button id="scrapeButton">Scrape This Page</button>
+    <button id="downloadButton" disabled>Download Data</button>
+
+    <div id="status" class="status" style="display: none;"></div>
+
+    <div class="counter">Products scraped: <span id="productCount">0</span></div>
+
+    <div id="productList" class="product-list" style="display: none;"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
