@@ -8,14 +8,6 @@ const scrapeAmazonProduct = () => {
     const productData = {
       title: document.querySelector('#productTitle')?.textContent.trim() || '',
       asin: getASIN(),
-      price: (() => {
-        const priceText = document.querySelector('span.slot-price')?.textContent.trim();
-        if (!priceText) return null; // Or 0, depending on desired default
-        // Remove currency symbols, commas, etc., keep only digits and decimal point
-        const cleanedPrice = priceText.replace(/[^0-9.]/g, ''); 
-        const priceValue = parseFloat(cleanedPrice);
-        return isNaN(priceValue) ? null : priceValue; // Return null if parsing failed
-      })(),
       description: document.querySelector('#productDescription p')?.textContent.trim() || 
                    document.querySelector('#bookDescription_feature_div .a-expander-content')?.textContent.trim() || '',
       imageUrl: document.querySelector('#imgBlkFront')?.src || 
@@ -23,6 +15,113 @@ const scrapeAmazonProduct = () => {
       url: `https://${window.location.hostname}/dp/${getASIN()}/`,
       isPrime: !!document.querySelector('.a-icon-prime'),
       timestamp: new Date().toISOString(),
+      
+      // Extract format options (ebook, audiobook)
+      formats: {
+        // Ebook (Kindle) information
+        ebook: (() => {
+          // Try to find Kindle format in the format selection area
+          const kindleFormat = Array.from(document.querySelectorAll('#tmmSwatches .swatchElement'))
+            .find(el => el.textContent.includes('Kindle') || el.textContent.includes('eBook'));
+          
+          if (kindleFormat) {
+            const linkElement = kindleFormat.querySelector('a.a-button-text');
+            
+            // Extract ASIN from the link if possible
+            let ebookAsin = '';
+            if (linkElement && linkElement.href) {
+              const asinMatch = linkElement.href.match(/\/dp\/([A-Z0-9]{10})/);
+              if (asinMatch) ebookAsin = asinMatch[1];
+            }
+            
+            return {
+              available: true,
+              url: ebookAsin ? `https://${window.location.hostname}/dp/${ebookAsin}/` : null,
+              asin: ebookAsin || null
+            };
+          }
+          
+          // Alternative method: check for Kindle link elsewhere
+          const kindleLink = document.querySelector('a[href*="/dp/"][href*="Kindle"], a[href*="/dp/"][href*="kindle"]');
+          if (kindleLink) {
+            let ebookAsin = null;
+            let url = null;
+            
+            const asinMatch = kindleLink.href.match(/\/dp\/([A-Z0-9]{10})/);
+            if (asinMatch) {
+              ebookAsin = asinMatch[1];
+              url = `https://${window.location.hostname}/dp/${ebookAsin}/`;
+            }
+            
+            return {
+              available: true,
+              url: url,
+              asin: ebookAsin
+            };
+          }
+          
+          // No ebook found
+          return {
+            available: false,
+            url: null,
+            asin: null
+          };
+        })(),
+        
+        // Audiobook information
+        audiobook: (() => {
+          // Try to find Audiobook format in the format selection area
+          const audiobookFormat = Array.from(document.querySelectorAll('#tmmSwatches .swatchElement'))
+            .find(el => el.textContent.includes('Audiobook') || el.textContent.includes('Audio CD') || el.textContent.includes('Audible'));
+          
+          if (audiobookFormat) {
+            const linkElement = audiobookFormat.querySelector('a.a-button-text');
+            
+            // Extract ASIN from the link if possible
+            let audiobookAsin = '';
+            if (linkElement && linkElement.href) {
+              const asinMatch = linkElement.href.match(/\/dp\/([A-Z0-9]{10})/);
+              if (asinMatch) audiobookAsin = asinMatch[1];
+            }
+            
+            return {
+              available: true,
+              url: audiobookAsin ? `https://${window.location.hostname}/dp/${audiobookAsin}/` : null,
+              asin: audiobookAsin || null
+            };
+          }
+          
+          // Alternative method: check for Audible section
+          const audibleSection = document.querySelector('#audibleSample, .audible-section');
+          if (audibleSection) {
+            // Try to find the Audible link separately
+            const audibleLink = document.querySelector('a[href*="/dp/"][href*="Audible"], a[href*="/dp/"][href*="audiobook"]');
+            let audiobookAsin = null;
+            let url = null;
+            
+            if (audibleLink) {
+              const asinMatch = audibleLink.href.match(/\/dp\/([A-Z0-9]{10})/);
+              if (asinMatch) {
+                audiobookAsin = asinMatch[1];
+                url = `https://${window.location.hostname}/dp/${audiobookAsin}/`;
+              }
+            }
+            
+            return {
+              available: true,
+              url: url,
+              asin: audiobookAsin
+            };
+          }
+          
+          // No audiobook found
+          return {
+            available: false,
+            url: null,
+            asin: null
+          };
+        })()
+      },
       
       // Extract reviews data
       reviews: {
